@@ -8,3 +8,6 @@ RUN apt-get update && \
 
 # Install Basic Packages
 RUN pip install ipykernel jupyter
+
+# To have Jupyter export to PDF work uncomment next line. It is big!
+# RUN apt-get install -y texlive-xetex texlive-fonts-recommended texlive-plain-generic jupyter-nbconvert

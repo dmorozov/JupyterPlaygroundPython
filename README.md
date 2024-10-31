@@ -4,130 +4,47 @@ I know that many Python developers use **Jupyter**. I have just started learning
 
 The sample in this repository is a sample of running Jupyter in a Docker container and accessing and using that environment from VS Code.
 
-## Description
+## DevContainer Usage
 
-There are three files used to configure this environment.
+This repository contains a [DevContainer](https://containers.dev) setup which provides an isolated development environment with the necessary tools and configurations to develop with **Jupyter** notebook. It utilizes Docker to provide a consistent and reproducible development environment.
 
-- **Dockerfile**
-- **compose.yaml**
-- **devcontainer.json**
+### Prerequisites
 
-Place them under the `.devcontainer` directory.
+In order to leverage this DevContainer, the following prerequisites are needed:
 
-```shell
-.devcontainer/
-├── Dockerfile
-├── compose.yaml
-└── devcontainer.json
+- Install [Docker Desktop](https://www.docker.com/) (Windows & MacOS) or docker engine in [Linux](https://docs.docker.com/engine/install/)
+- Install [Visual Studio Code](https://code.visualstudio.com/) and the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
+- Install Git and clone this repository
+- If you're on Windows, we recommend you do this within WSL2 for disk-I/O performance reasons. Install the [WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) VSCode extension too.
+
+!!! Important. The latest Docker version includes docker-compose as a plugin.
+So, if you are using latest version of the Docker please make sure that you not just have installed docker-compose but the "compose" plugin to the docker as well.
+https://docs.docker.com/compose/install/linux/
+
+### Start-up instructions
+
+To boot up this DevContainer, simply run the `Reopen in Container` action. You can do this in three different places
+
+- There may be an automatic popup in the bottom-right prompting you with a button
+- The `><` button in the bottom-left corner + menu-option in the top-center
+- Search for it in the command palette
+
+Separate configurations are provided to simulate different environments you would like to target for this project's dependencies. Choose which you'd like to use, and the appropriate DevContainer will launch.
+
+## Export Jupyter notebook to PDF
+
+The original intention of this Devcontainer was to have quick and lightweight way to get **Jupyter** work with Java support to do some quick experiments.
+The Java itself makes need to download a lot to initialize the container so it is not so "lightweight" anymore.
+
+So, notebook export to HTML works but to export to PDF you need extra dependencies to be installed. Those dependencies are bringing a lot of transitional dependencies which makes the first time Devcontainer run even more heavy. So, right now, it is disabled by default. You can enable it in the [Dockerfile](.devcontainer/Dockerfile):
+
+```code
+...
+RUN apt-get install -y jupyter-notebook
+
+# !!! Uncomment this to have Jupyter export to PDF work:
+# RUN apt-get install -y texlive-xetex texlive-fonts-recommended texlive-plain-generic jupyter-nbconvert
+
 ```
 
-### .devcontainer directory
-
-If there is a directory named `.devcontainer` in the `workspaceRoot`, VSCode's **RemoteDevelopment** extension will use the `.devcontainer.json` and other container-related files inside the directory for It does `docker build`, container creation, etc.
-
-#### Dockerfile
-
-```Dockerfile
-FROM python:3.12.1-slim-bullseye
-USER root
-
-RUN apt-get update && \
-    apt-get -y install --reinstall ca-certificates && \
-    apt-get -y install software-properties-common && \
-    pip install --upgrade pip
-
-RUN pip install ipykernel jupyter
-```
-
-- `L1`: A container image of the latest Python version as of Jan-11-2024 is specified.
-- `L4-L7`: I have installed the minimum required packages and upgraded `pip` to provide a base Python environment.
-- `L9`: Two modules required for **Jupyter** are installed.
-
-#### compose.yaml
-
-```yaml
-version: "3"
-services:
-  jupyter:
-    build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
-    environment:
-      PYTHONPATH: /workspace
-    volumes:
-      - ..:/workspace
-    ports:
-      - 8888:8888
-    command: sleep infinity
-```
-
-- `L6`: Specify the PATH of Dockerfile
-- `L10`: Define the path of the workspace on the container
-
-#### devcontainer.json
-
-```json
-{
-	"name": "devcontainr_python3",
-	"dockerComposeFile": "compose.yaml",
-	"service": "jupyter",
-	"workspaceFolder": "/workspace",
-	"shutdownAction": "stopCompose",
-	"forwardPorts": [8888],
-	"customizations": {
-		"vscode": {
-			"extensions": [
-                "ms-python.python",
-				"ms-python.vscode-pylance",
-                "ms-toolsai.jupyter"
-            ]
-		}
-	}
-}
-```
-
-- `L2`: Container name visible on VS Code
-- `L3`: Specify by relative path the docker-comopse file used to create the container
-- `L4`: Specify the service name of the container you want to open in VScode among the services in compose.yaml
-- `L5`: Specify the root folder when the container is opened
-- `L6`: Setting what to do with containers when a container screen is closed in VScode. `stopCompose` stops the container when the screen is closed
-- `L11-L13`: Specify VScode extensions to be installed with container creation
-  - [ms-python.python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-  - [ms-python.vscode-pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
-  - [ms-toolsai.jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
-
-### Execute Dev Containers
-
-Follow the steps below to execute **Dev Containers**.
-
-1. Open **Command Pallette** by `F1`
-2. Select `> Dev Containers: Reopen in Container`
-3. Open **Command Pallette** by `F1` on the Remote side 
-4. Select `> Jupyter: Import Jupyter Notebook`
-5. Select `Interactive-1.ipynb`
-6. Select `Run Cell`
-
-## Demo
-
-## Features
-
-- feature:1
-- feature:2
-
-## Requirement
-
-## Usage
-
-## Installation
-
-## References
-
-## Licence
-
-Released under the [MIT license](https://gist.githubusercontent.com/shinyay/56e54ee4c0e22db8211e05e70a63247e/raw/34c6fdd50d54aa8e23560c296424aeb61599aa71/LICENSE)
-
-## Author
-
-- github: <https://github.com/shinyay>
-- twitter: <https://twitter.com/yanashin18618>
-- mastodon: <https://mastodon.social/@yanashin>
+After that you will need to rebuild the Devcontainer.
