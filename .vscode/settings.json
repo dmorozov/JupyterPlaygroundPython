@@ -1,0 +1,7 @@
+{
+    "window.autoDetectColorScheme": true,
+    "notebook.defaultFormatter": "ms-python.python",
+    "workbench.colorCustomizations": {
+        "activityBar.background":"#181818"
+    }
+}
